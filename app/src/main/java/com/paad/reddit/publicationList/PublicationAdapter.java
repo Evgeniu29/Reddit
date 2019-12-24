@@ -118,7 +118,7 @@ public class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.
 
         date.setText(convertUtc2Local(Long.toString(dataChild.getData().getCreated_utc()).toString()).toString()+" "+ context.getResources().getString(R.string.hours_ago));
 
-        num_comments.setText(Integer.toString(dataChild.getData().getNum_comments()));
+        num_comments.setText(Integer.toString(dataChild.getData().getNum_comments())+" "+ context.getResources().getString(R.string.comments));
 
         Picasso.with(context).load(dataChild.getData().getThumbnail()).into(thumbnail);
 
