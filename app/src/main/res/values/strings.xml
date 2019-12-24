@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Reddit</string>
+    <string name="author">author</string>
+
+    <string name="created">created</string>
+
+    <string name="hours_ago">hours ago</string>
+
+</resources>
