@@ -4,6 +4,10 @@ public class Children {
     private String kind;
     private DataChild data;
 
+    public Children(){
+
+    }
+
     public String getKind() {
 
         return kind;

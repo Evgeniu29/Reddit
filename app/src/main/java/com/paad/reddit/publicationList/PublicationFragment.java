@@ -143,18 +143,22 @@ public class PublicationFragment extends Fragment implements PublicationContract
                 int insertIndex=scrollPosition;
                 int nextLimit = currentSize + 10;
 
+
+
                 while (currentSize - 1 < nextLimit) {
 
-                    Children children = presenter.getFullList().get(currentSize);
 
-                    childrenList.add(children);
+
+
+                    childrenList.add( presenter.getFullList().get(currentSize-1));
 
 
                     currentSize++;
                 }
                 
-
-                fillList(childrenList);
+                recyclerView.setAdapter(new PublicationAdapter(getContext(), childrenList, publicationID -> {
+                    transferBetweenFragments.goFromPublicationToPublication(publicationID);
+                }));
 
                 isLoading = false;
             }
