@@ -19,7 +19,6 @@ public class Repository {
 
     private Context  context;
 
-    private static final int MAX_TOP = 50;
 
     private TopResponseData interactorTopResponseData;
 
@@ -33,7 +32,7 @@ public class Repository {
 
     public void getTop(final ResponseCallback cllbk){
 
-        this.service.getTop(MAX_TOP).enqueue(new Callback<TopResponse>() {
+        this.service.getTop(50).enqueue(new Callback<TopResponse>() {
             @Override
             public void onResponse(Call<TopResponse> call, Response<TopResponse> response) {
                 Log.v("response", response.body().toString());

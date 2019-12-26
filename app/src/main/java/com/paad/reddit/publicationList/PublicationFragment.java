@@ -3,6 +3,8 @@ package com.paad.reddit.publicationList;
 import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +24,7 @@ import com.paad.reddit.model.Children;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 public class PublicationFragment extends Fragment implements PublicationContract.View {
@@ -32,8 +35,7 @@ public class PublicationFragment extends Fragment implements PublicationContract
     private Context context;
     private  PublicationAdapter adapter;
     private List<Children> childrenList;
-    public RecyclerView.LayoutManager mLayoutManager;
-    String nextPageId;
+    boolean isLoading=false;
 
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -84,31 +86,32 @@ public class PublicationFragment extends Fragment implements PublicationContract
         recyclerView.addItemDecoration(itemDecoration);
         presenter.onLoadTop();
 
-
-        RecyclerView.OnScrollListener prOnScrollListener = new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
             }
 
             @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                if(islastItemDisplaying(recyclerView)){
-                    //so i would call the get data method here
-                    // show loading progress
-                    presenter.onLoadTop();
-                    Log.i("ListActivity", "LoadMore");
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+
+                if (!isLoading) {
+                    if (linearLayoutManager != null && linearLayoutManager.findLastCompletelyVisibleItemPosition() == childrenList.size() - 1) {
+                        //bottom of list!
+                        loadMore();
+                        isLoading = true;
+                    }
                 }
             }
-
-
-        };
-
+        });
 
 
     }
+
+
 
     private boolean islastItemDisplaying(RecyclerView recyclerView){
         //check if the adapter item count is greater than 0
@@ -124,16 +127,53 @@ public class PublicationFragment extends Fragment implements PublicationContract
     }
 
 
-        public void fillList(ArrayList<Children> childrenList) {
+    private void loadMore() {
+        childrenList.add(null);
+        adapter.notifyItemInserted( childrenList.size() - 1);
 
-            adapter = new PublicationAdapter(getContext(), childrenList, publicationID -> {
-                transferBetweenFragments.goFromPublicationToPublication(publicationID);
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                childrenList.remove( childrenList.size() - 1);
+                int scrollPosition =  childrenList.size();
+                adapter.notifyItemRemoved(scrollPosition);
+                int currentSize = scrollPosition;
+                int insertIndex=scrollPosition;
+                int nextLimit = currentSize + 10;
+
+                while (currentSize - 1 < nextLimit) {
+
+                    Children children = presenter.getFullList().get(currentSize);
+
+                    childrenList.add(children);
 
 
-            });
+                    currentSize++;
+                }
+                
 
-            recyclerView.setAdapter(adapter);
-        }
+                fillList(childrenList);
+
+                isLoading = false;
+            }
+        }, 2000);
+
+
+    }
+
+
+    @Override
+    public void fillList(List<Children> childrenList) {
+        this.childrenList = childrenList;
+
+        adapter = new PublicationAdapter(getContext(), this.childrenList, publicationID -> {
+            transferBetweenFragments.goFromPublicationToPublication(publicationID);
+        });
+
+        recyclerView.setAdapter(adapter);
+    }
 
 
 
@@ -143,5 +183,8 @@ public class PublicationFragment extends Fragment implements PublicationContract
         Toast.makeText(this.getContext(),"Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
 
     }
+
+
+
 
 }

@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.main_container, new PublicationFragment())
                 .commit();
 
-
-
     }
+
+
 
 }

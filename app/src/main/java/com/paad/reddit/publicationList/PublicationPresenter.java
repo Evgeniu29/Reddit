@@ -19,6 +19,8 @@ public class PublicationPresenter  implements PublicationContract.Presenter {
 
     private PublicationContract.View view;
 
+    List<Children> fullList;
+
 
     public PublicationPresenter(PublicationContract.View view, Application application) {
         this.view = view;
@@ -37,9 +39,10 @@ public class PublicationPresenter  implements PublicationContract.Presenter {
 
                 if (response != null && response.getData() != null)
 
+                   fullList =  response.getData().getChildrenList();
 
 
-                view.fillList(response.getData().getChildrenList());
+                view.fillList(fullList.subList(0,10));
 
 
             }
@@ -50,6 +53,10 @@ public class PublicationPresenter  implements PublicationContract.Presenter {
             }
         });
 
+    }
+
+     public List<Children> getFullList(){
+        return fullList;
     }
 
 

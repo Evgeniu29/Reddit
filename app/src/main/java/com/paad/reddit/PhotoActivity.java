@@ -32,11 +32,9 @@ public class PhotoActivity extends AppCompatActivity {
             Picasso.with(this).load(R.drawable.noimage).fit().centerCrop().into(image);
         } else {
 
-
             Picasso.with(this).load(thumbnail).fit().centerCrop().into(image);
 
         }
-
 
     }
 }

@@ -2,13 +2,13 @@ package com.paad.reddit.publicationList;
 
 import com.paad.reddit.model.Children;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public interface PublicationContract {
 
     interface View {
 
-        void fillList(ArrayList<Children> childrenList);
+        void fillList(List<Children> childrenList);
         void showErrorMessage();
     }
 
@@ -17,6 +17,6 @@ public interface PublicationContract {
         void onLoadTop();
 
 
-
+        List<Children> getFullList();
     }
 }
