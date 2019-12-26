@@ -1,5 +1,6 @@
 package com.paad.reddit.publicationList;
 
+import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,11 +17,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.paad.reddit.R;
-import com.paad.reddit.Repository;
 import com.paad.reddit.TransferBetweenFragments;
 import com.paad.reddit.model.Children;
-import com.paad.reddit.model.TopResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -32,12 +32,8 @@ public class PublicationFragment extends Fragment implements PublicationContract
     private Context context;
     private  PublicationAdapter adapter;
     private List<Children> childrenList;
-
-    private int page = 1, limit = 15;
-    private int firstVisibleItem, visibleItemCount, totalItemCount;
-    private int previousTotal = 0;
-    private int visibleThreshold = 10;
-
+    public RecyclerView.LayoutManager mLayoutManager;
+    String nextPageId;
 
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -53,8 +49,10 @@ public class PublicationFragment extends Fragment implements PublicationContract
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+            setRetainInstance(true);
+        }
 
-    }
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,31 +74,57 @@ public class PublicationFragment extends Fragment implements PublicationContract
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+        presenter = new PublicationPresenter(this, (Application)this.context.getApplicationContext());
+
+
         recyclerView = (RecyclerView) view.findViewById(R.id.publication_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(view.getContext(), DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(itemDecoration);
+        presenter.onLoadTop();
 
-        Repository repository = new Repository(context);
 
-        // Get top
-        repository.getTop(new Repository.ResponseCallback() {
+        RecyclerView.OnScrollListener prOnScrollListener = new RecyclerView.OnScrollListener() {
             @Override
-            public void onDataReady(TopResponse response) {
-                if (response != null && response.getData() != null)
-                    childrenList = response.getData().getChildrenList();
-                fillList();
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
             }
 
             @Override
-            public void onError(Throwable t) {
-                Log.e("error", " =>" + t.getMessage());
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if(islastItemDisplaying(recyclerView)){
+                    //so i would call the get data method here
+                    // show loading progress
+                    presenter.onLoadTop();
+                    Log.i("ListActivity", "LoadMore");
+                }
             }
-        });
+
+
+        };
+
+
+
+    }
+
+    private boolean islastItemDisplaying(RecyclerView recyclerView){
+        //check if the adapter item count is greater than 0
+        if(recyclerView.getAdapter().getItemCount() != 0){
+            //get the last visible item on screen using the layoutmanager
+            int lastVisibleItemPosition = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition();
+            //apply some logic here.
+            if(lastVisibleItemPosition != RecyclerView.NO_POSITION && lastVisibleItemPosition == recyclerView.getAdapter().getItemCount() - 1)
+                return true;
+        }
+
+        return  false;
     }
 
 
-        public void fillList () {
+        public void fillList(ArrayList<Children> childrenList) {
 
             adapter = new PublicationAdapter(getContext(), childrenList, publicationID -> {
                 transferBetweenFragments.goFromPublicationToPublication(publicationID);

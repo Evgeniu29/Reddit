@@ -59,10 +59,24 @@
         android:id="@+id/thumbnail"
         />
 
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/save"
+        android:background="@drawable/save"
+        />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/num_comments"
+        android:textSize="15dp"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/info"
         android:textSize="15dp"
         />
 

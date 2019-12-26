@@ -32,6 +32,7 @@ public class Repository {
     }
 
     public void getTop(final ResponseCallback cllbk){
+
         this.service.getTop(MAX_TOP).enqueue(new Callback<TopResponse>() {
             @Override
             public void onResponse(Call<TopResponse> call, Response<TopResponse> response) {
