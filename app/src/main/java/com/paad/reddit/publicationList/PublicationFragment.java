@@ -143,8 +143,6 @@ public class PublicationFragment extends Fragment implements PublicationContract
                 int insertIndex=scrollPosition;
                 int nextLimit = currentSize + 10;
 
-
-
                 while (currentSize - 1 < nextLimit) {
 
 
